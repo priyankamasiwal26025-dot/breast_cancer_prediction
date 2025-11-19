@@ -1,69 +1,89 @@
-import os
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow import keras
+from tensorflow.keras import layers
+import os
 
-DATASET_DIR = "data"
+# ===========================
+#  CONFIG
+# ===========================
+DATA_DIR = "data"
+IMG_SIZE = (128, 128)
+BATCH_SIZE = 16
+EPOCHS = 10
+MODEL_SAVE_PATH = "model.h5"   # final saved model
 
-def load_data():
-    datagen = ImageDataGenerator(validation_split=0.2, rescale=1/255.)
+# ===========================
+#  LOAD DATASET
+# ===========================
+train_dir = os.path.join(DATA_DIR, "train")
+test_dir = os.path.join(DATA_DIR, "test")
 
-    train = datagen.flow_from_directory(
-        DATASET_DIR,
-        target_size=(128, 128),
-        batch_size=32,
-        class_mode='binary',
-        subset="training"
-    )
+print("Loading dataset...")
+print("Train directory:", train_dir)
+print("Test directory:", test_dir)
 
-    val = datagen.flow_from_directory(
-        DATASET_DIR,
-        target_size=(128, 128),
-        batch_size=32,
-        class_mode='binary',
-        subset="validation"
-    )
+train_ds = keras.preprocessing.image_dataset_from_directory(
+    train_dir,
+    labels="inferred",
+    label_mode="binary",
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE,
+    shuffle=True,
+)
 
-    return train, val
+test_ds = keras.preprocessing.image_dataset_from_directory(
+    test_dir,
+    labels="inferred",
+    label_mode="binary",
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE,
+    shuffle=False,
+)
 
-def build_model():
-    model = Sequential([
-        Conv2D(32, (3,3), activation='relu', input_shape=(128,128,3)),
-        MaxPooling2D(2,2),
+# Better performance
+train_ds = train_ds.prefetch(buffer_size=tf.data.AUTOTUNE)
+test_ds = test_ds.prefetch(buffer_size=tf.data.AUTOTUNE)
 
-        Conv2D(64, (3,3), activation='relu'),
-        MaxPooling2D(2,2),
+# ===========================
+#  MODEL
+# ===========================
+model = keras.Sequential([
+    layers.Rescaling(1./255, input_shape=IMG_SIZE + (3,)),
+    layers.Conv2D(32, (3,3), activation='relu'),
+    layers.MaxPooling2D(),
 
-        Flatten(),
-        Dense(128, activation='relu'),
-        Dropout(0.3),
-        Dense(1, activation='sigmoid')
-    ])
+    layers.Conv2D(64, (3,3), activation='relu'),
+    layers.MaxPooling2D(),
 
-    model.compile(
-        optimizer='adam',
-        loss='binary_crossentropy',
-        metrics=['accuracy']
-    )
+    layers.Conv2D(128, (3,3), activation='relu'),
+    layers.MaxPooling2D(),
 
-    return model
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(1, activation='sigmoid')   # binary classification
+])
 
-def train_model():
-    train, val = load_data()
-    model = build_model()
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"]
+)
 
-    checkpoint = ModelCheckpoint("model.h5", save_best_only=True, monitor="val_accuracy")
+model.summary()
 
-    history = model.fit(
-        train,
-        validation_data=val,
-        epochs=10,
-        callbacks=[checkpoint]
-    )
+# ===========================
+#  TRAIN MODEL
+# ===========================
+print("\nTraining model...")
+history = model.fit(
+    train_ds,
+    validation_data=test_ds,
+    epochs=EPOCHS
+)
 
-    print("Training complete. Model saved as model.h5")
-
-if __name__ == "__main__":
-    train_model()
+# ===========================
+#  SAVE MODEL
+# ===========================
+model.save(MODEL_SAVE_PATH)
+print(f"\nModel saved successfully → {MODEL_SAVE_PATH}")

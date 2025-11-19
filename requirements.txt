@@ -1,17 +1,21 @@
-# ---- Core ML Dependencies ----
-tensorflow
-numpy
-pillow
+# Core ML + Deep Learning
+tensorflow==2.13.0
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.3.0
 
-# ---- Flask API ----
-flask
-flask-cors
+# Model saving & loading
+h5py==3.10.0
 
-# ---- Image Processing ----
-opencv-python-headless
+# Flask backend
+Flask==3.0.2
+Werkzeug==3.0.1
 
-# ---- Deployment (Render) ----
-gunicorn
-pytest
-pandas
-joblib
+# CORS (optional)
+flask-cors==4.0.0
+
+# Testing
+pytest==7.4.0
+
+# For CI/CD on GitHub Actions
+gunicorn==21.2.0
