@@ -1,9 +1,17 @@
-flask
-pandas 
-joblib
-gunicorn
+# ---- Core ML Dependencies ----
 tensorflow
 numpy
 pillow
+
+# ---- Flask API ----
+flask
+flask-cors
+
+# ---- Image Processing ----
+opencv-python-headless
+
+# ---- Deployment (Render) ----
+gunicorn
 pytest
-scikit-learn
+pandas
+joblib
