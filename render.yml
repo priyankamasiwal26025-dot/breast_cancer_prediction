@@ -2,5 +2,9 @@ services:
   - type: web
     name: breast-cancer-prediction
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app -b 0.0.0.0:$PORT
+    envVars:
+      - key: MODEL_PATH
+        value: model.h5

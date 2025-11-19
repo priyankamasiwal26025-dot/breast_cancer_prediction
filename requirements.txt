@@ -1,6 +1,7 @@
-Flask
+flask
+gunicorn
 tensorflow
 numpy
-opencv-python
-Pillow
-gunicorn
+pillow
+pytest
+scikit-learn
