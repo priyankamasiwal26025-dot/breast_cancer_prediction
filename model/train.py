@@ -7,7 +7,7 @@ import os
 #  CONFIG
 # ===========================
 DATA_DIR = "data"
-IMG_SIZE = (128, 128)
+IMG_SIZE = (224, 224)
 BATCH_SIZE = 16
 EPOCHS = 10
 MODEL_SAVE_PATH = "model.h5"   # final saved model

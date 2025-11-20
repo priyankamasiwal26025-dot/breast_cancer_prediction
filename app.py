@@ -28,7 +28,7 @@ def load_model():
         _model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     return _model
 
-IMG_SIZE = (128, 128)
+IMG_SIZE = (244, 244)
 def preprocess_image(file_path):
     img = Image.open(file_path).convert('RGB').resize(IMG_SIZE, Image.BILINEAR)
     arr = np.asarray(img, dtype='float32') / 255.0
@@ -41,15 +41,13 @@ def index():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        if 'image' not in request.files:
+        if "image" not in request.files:
             return jsonify({"error": "No image provided"}), 400
 
-        f = request.files['image']
+        f = request.files["image"]
         filename = secure_filename(f.filename)
-        if filename == '':
-            return jsonify({"error": "Invalid filename"}), 400
-
         ext = os.path.splitext(filename)[1].lower()
+
         if ext not in ALLOWED_EXT:
             return jsonify({"error": f"Unsupported file extension '{ext}'"}), 400
 
@@ -59,13 +57,19 @@ def predict():
         img_arr = preprocess_image(tmp_path)
         model = load_model()
         pred = model.predict(np.expand_dims(img_arr, axis=0))[0]
-        # handle shape: could be scalar or array
-        prob = float(pred[0]) if hasattr(pred, "__len__") else float(pred)
+
+        prob = float(pred[0])
         label = "malignant" if prob >= 0.5 else "benign"
 
-        return jsonify({"label": label, "malignant_probability": prob})
+        return jsonify({
+            "label": label,
+            "benign_probability": float(1 - prob),
+            "malignant_probability": float(prob)
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     finally:
         try:
             os.remove(tmp_path)
