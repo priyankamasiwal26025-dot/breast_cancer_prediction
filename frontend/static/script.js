@@ -1,44 +1,73 @@
-async function upload() {
-    const fileInput = document.getElementById('file');
-    const file = fileInput.files[0];
-    if (!file) {
-        alert('Please select an image file first.');
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+const predictionText = document.getElementById("predictionText");
+const confidenceText = document.getElementById("confidenceText");
+const benignProb = document.getElementById("benignProb");
+const malignantProb = document.getElementById("malignantProb");
+const recommendText = document.getElementById("recommendText");
+const confidenceBar = document.getElementById("confidenceBar");
+const title = document.getElementById("result-title");
+
+let selectedImage = null;
+
+// CLICK to open file dialog
+document.getElementById("drop-area").onclick = () => imageInput.click();
+
+// SHOW IMAGE PREVIEW
+imageInput.onchange = function () {
+    selectedImage = this.files[0];
+    preview.src = URL.createObjectURL(selectedImage);
+};
+
+// RESET button
+resetBtn.onclick = () => {
+    imageInput.value = "";
+    preview.src = "";
+    selectedImage = null;
+
+    predictionText.textContent = "--";
+    confidenceText.textContent = "--%";
+    benignProb.textContent = "--%";
+    malignantProb.textContent = "--%";
+    recommendText.textContent = "--";
+    confidenceBar.style.width = "0%";
+    title.textContent = "Prediction will appear here";
+};
+
+// ANALYZE button
+analyzeBtn.onclick = async function () {
+    if (!selectedImage) {
+        alert("Please upload an image first!");
         return;
     }
-    const formData = new FormData();
-    formData.append('image', file);
 
-    const btn = document.getElementById('btn');
-    btn.disabled = true;
-    btn.innerText = 'Predicting...';
+    let formData = new FormData();
+    formData.append("image", selectedImage);
 
-    try {
-        const response = await fetch('/predict', {
-            method: 'POST',
-            body: formData
-        });
+    const res = await fetch("/predict", {
+        method: "POST",
+        body: formData
+    });
 
-        const data = await response.json();  // expects JSON!
+    const data = await res.json();
 
-        document.getElementById('result').style.display = 'block';
+    let prob = data.malignant_probability * 100;
 
-        if (response.ok) {
-            document.getElementById('out').innerHTML =
-                `<strong>${data.label}</strong> (malignant probability: ${(data.malignant_probability * 100).toFixed(2)}%)`;
-            document.getElementById('meta').innerText =
-                `Raw model output: ${data.malignant_probability}`;
-        } else {
-            document.getElementById('out').innerText =
-                `Error: ${data.error || 'unknown'}`;
-            document.getElementById('meta').innerText = '';
-        }
-    } catch (err) {
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('out').innerText =
-            'Network or server error: ' + String(err);
-        document.getElementById('meta').innerText = '';
-    } finally {
-        btn.disabled = false;
-        btn.innerText = 'Predict';
-    }
-}
+    predictionText.textContent = data.label;
+    confidenceText.textContent = prob.toFixed(1) + "%";
+    malignantProb.textContent = prob.toFixed(1) + "%";
+    benignProb.textContent = (100 - prob).toFixed(1) + "%";
+    confidenceBar.style.width = prob + "%";
+
+    title.textContent = data.label === "malignant" 
+        ? "Malignant Tissue Detected" 
+        : "Benign Tissue Detected";
+
+    recommendText.textContent =
+        data.label === "malignant"
+            ? "The analysis suggests malignant characteristics. Immediate medical evaluation is recommended."
+            : "The tissue appears benign. Continue regular screenings as recommended.";
+};
