@@ -8,8 +8,7 @@ __pycache__/
 venv/
 env/
 
-# Data and models (large_files)
-data/
+# Models (large_files)
 models/
 
 # OS files
