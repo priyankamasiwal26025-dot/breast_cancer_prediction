@@ -1,27 +1,11 @@
-# Core ML + Deep Learning
 tensorflow==2.20.0
 numpy
 pandas
 scikit-learn
-
-# Model saving & loading
 h5py
-
-# Flask backend
 Flask
 Werkzeug
-
-# CORS (optional)
 flask-cors
-
-# Testing
 pytest
-
-# Production server
 gunicorn
-
-# Image handling
 Pillow
-
-# Required for TensorFlow on Linux (Render)
-tensorflow-io-gcs-filesystem
