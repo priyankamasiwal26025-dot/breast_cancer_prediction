@@ -19,3 +19,4 @@ pytest==7.4.0
 
 # For CI/CD on GitHub Actions
 gunicorn==21.2.0
+Pillow==10.0.0
