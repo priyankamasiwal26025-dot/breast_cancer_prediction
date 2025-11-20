@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brest Cancer Detection Using Deep Learning and Histopathology Image Classification</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="/static/favicon.ico" />
+</head>
+<body>
+<div class="page-bg"></div>
+<div class="container">
+<div class="card">
+<h1>Breast Cancer Prediction</h1>
+<p class="lead">Upload a histopathology patch (or use the sample) — the server will respond with label + probability.</p>
+
+
+<div class="row">
+<div class="col">
+<label for="file">Choose image (jpg/png)</label>
+<input id="file" type="file" accept="image/*" />
+<button id="btn" onclick="upload()">Predict</button>
+
+
+<div class="result" id="result" aria-live="polite" style="display:none;">
+<strong>Prediction:</strong>
+<div id="out"></div>
+<div class="meta" id="meta"></div>
+</div>
+</div>
+
+
+<div class="preview">
+<strong>Sample image</strong>
+<p class="small">Provided sample (local path)</p>
+<img id="sample" src="/sample" alt="sample" />
+<div class="tip">Tip: click Predict after choosing an image</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<script src="/static/script.js"></script>
+</body>
+</html>
