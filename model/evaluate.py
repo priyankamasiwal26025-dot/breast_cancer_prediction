@@ -10,7 +10,7 @@ def evaluate_model():
 
     test = test_datagen.flow_from_directory(
         DATASET_DIR,
-        target_size=(128,128),
+        target_size=(244, 244),
         batch_size=32,
         class_mode='binary'
     )
